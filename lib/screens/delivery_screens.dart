@@ -117,7 +117,8 @@ class _DeliveryAppsScreenState extends State<DeliveryAppsScreen> {
         leading: CircleAvatar(child: Text(p[0])),
         title: Text('${p[1]} — #${o.id}', style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text('${o.customerName} • ${o.total.toStringAsFixed(2)} ر.س • ${o.payment == 'cod' ? 'دفع عند الاستلام' : 'مدفوع أونلاين'}'),
-        trailing: Chip(label: Text(st[0] as String, style: TextStyle(color: st[1] as Color, fontSize: 11)), backgroundColor: (st[1] as Color).withOpacity(.12)),
+        trailing: Chip(label: Text(st[0] as String, style: TextStyle(color: st[1] as Color, fontSize: 11)),
+            backgroundColor: (st[1] as Color).withValues(alpha: .12)),
         children: [
           Padding(padding: const EdgeInsets.all(14), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             ...o.items.map((i) => Padding(padding: const EdgeInsets.symmetric(vertical: 2),
