@@ -163,6 +163,9 @@ class _SyncScreenState extends State<SyncScreen> {
 /* ==========================================================
    29) دالة شاشة الإعدادات الشاملة (SettingsScreen)
    ========================================================== */
+/* ==========================================================
+   29) دالة شاشة الإعدادات الشاملة (SettingsScreen) — مصححة
+   ========================================================== */
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
   @override
@@ -239,14 +242,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ]))),
     Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       const Text('💳 جهاز الدفع', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-      DropdownButtonFormField<String>(value: _payMode, decoration: const InputDecoration(labelText: 'طريقة الربط'),
-          items: const [DropdownMenuItem(value: 'simulate', child: Text('محاكاة')), DropdownMenuItem(value: 'bridge', child: Text('جسر HTTP'))],
+      const Text('طريقة الربط'),
+      DropdownButton<String>(value: _payMode, isExpanded: true,
+          items: const [
+            DropdownMenuItem(value: 'simulate', child: Text('محاكاة')),
+            DropdownMenuItem(value: 'bridge', child: Text('جسر HTTP')),
+          ],
           onChanged: (v) => setState(() => _payMode = v!)),
       TextField(controller: _payUrl, decoration: const InputDecoration(labelText: 'رابط الجسر')),
     ]))),
     Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       const Text('🗄 درج الكاشير', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-      DropdownButtonFormField<String>(value: _drawerMode, decoration: const InputDecoration(labelText: 'طريقة فتح الدرج'),
+      const Text('طريقة فتح الدرج'),
+      DropdownButton<String>(value: _drawerMode, isExpanded: true,
           items: const [
             DropdownMenuItem(value: 'simulate', child: Text('محاكاة')),
             DropdownMenuItem(value: 'escpos', child: Text('طابعة/درج ESC-POS عبر الشبكة')),
