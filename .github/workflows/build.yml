@@ -11,9 +11,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # ---------- 0) اكتشاف هيكل المستودع ----------
+  detect:
+    name: Detect Structure
+    runs-on: ubuntu-latest
+    outputs:
+      app_dir: ${{ steps.d.outputs.app_dir }}
+      has_server: ${{ steps.d.outputs.has_server }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect app & server paths
+        id: d
+        run: |
+          if [ -f app/pubspec.yaml ]; then APP=app;
+          elif [ -f pubspec.yaml ]; then APP=.;
+          else echo "::error::ما لقيت pubspec.yaml لا في الجذر ولا في app/"; exit 1; fi
+          echo "app_dir=$APP" >> $GITHUB_OUTPUT
+          if [ -f server/pubspec.yaml ]; then echo "has_server=true" >> $GITHUB_OUTPUT; else echo "has_server=false" >> $GITHUB_OUTPUT; fi
+          echo "✅ app_dir=$APP  has_server=$( [ -f server/pubspec.yaml ] && echo true || echo false )"
+
   # ---------- 1) التحليل والاختبار ----------
   analyze:
     name: Analyze & Test
+    needs: detect
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,34 +45,34 @@ jobs:
           channel: stable
           cache: true
 
-      - name: App dependencies
-        run: |
-          cd app
-          flutter pub get
+      - name: Pub get
+        working-directory: ${{ needs.detect.outputs.app_dir }}
+        run: flutter pub get
 
-      - name: Analyze App
-        run: |
-          cd app
-          flutter analyze --no-fatal-infos --no-fatal-warnings
+      - name: Analyze
+        working-directory: ${{ needs.detect.outputs.app_dir }}
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
-      - name: Test App
+      - name: Test (if tests exist)
+        working-directory: ${{ needs.detect.outputs.app_dir }}
         run: |
-          cd app
-          flutter test
+          if [ -d test ]; then flutter test; else echo "لا توجد اختبارات - تخطي"; fi
 
       - name: Setup Dart (Server)
+        if: needs.detect.outputs.has_server == 'true'
         uses: dart-lang/setup-dart@v1
 
       - name: Analyze Server
+        if: needs.detect.outputs.has_server == 'true'
         run: |
           cd server
           dart pub get
           dart analyze --no-fatal-infos --no-fatal-warnings
 
-  # ---------- 2) بناء Android ----------
+  # ---------- 2) Android ----------
   android:
     name: Build Android APK
-    needs: analyze
+    needs: [detect, analyze]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -69,8 +90,8 @@ jobs:
           cache: true
 
       - name: Build APK
+        working-directory: ${{ needs.detect.outputs.app_dir }}
         run: |
-          cd app
           flutter pub get
           flutter build apk --release --split-per-abi
 
@@ -78,12 +99,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android-apks
-          path: app/build/app/outputs/flutter-apk/*.apk
+          path: ${{ needs.detect.outputs.app_dir }}/build/app/outputs/flutter-apk/*.apk
 
-  # ---------- 3) بناء Web ----------
+  # ---------- 3) Web ----------
   web:
     name: Build Web
-    needs: analyze
+    needs: [detect, analyze]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -95,26 +116,26 @@ jobs:
           cache: true
 
       - name: Build Web
+        working-directory: ${{ needs.detect.outputs.app_dir }}
         run: |
-          cd app
           flutter pub get
           flutter build web --release
 
       - name: Zip Web
         run: |
-          cd app/build
+          cd ${{ needs.detect.outputs.app_dir }}/build
           zip -r pos_web.zip web
 
       - name: Upload Web
         uses: actions/upload-artifact@v4
         with:
           name: web-build
-          path: app/build/pos_web.zip
+          path: ${{ needs.detect.outputs.app_dir }}/build/pos_web.zip
 
-  # ---------- 4) بناء Windows ----------
+  # ---------- 4) Windows ----------
   windows:
     name: Build Windows
-    needs: analyze
+    needs: [detect, analyze]
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -126,14 +147,14 @@ jobs:
           cache: true
 
       - name: Build Windows
+        working-directory: ${{ needs.detect.outputs.app_dir }}
         run: |
-          cd app
           flutter pub get
           flutter config --enable-windows-desktop
           flutter build windows --release
 
       - name: Zip Windows
-        run: Compress-Archive -Path app\build\windows\x64\runner\Release\* -DestinationPath pos_windows.zip
+        run: Compress-Archive -Path "${{ needs.detect.outputs.app_dir }}\build\windows\x64\runner\Release\*" -DestinationPath pos_windows.zip
 
       - name: Upload Windows
         uses: actions/upload-artifact@v4
@@ -141,10 +162,10 @@ jobs:
           name: windows-build
           path: pos_windows.zip
 
-  # ---------- 5) بناء iOS (بدون توقيع) ----------
+  # ---------- 5) iOS ----------
   ios:
     name: Build iOS (no codesign)
-    needs: analyze
+    needs: [detect, analyze]
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -156,26 +177,27 @@ jobs:
           cache: true
 
       - name: Build iOS
+        working-directory: ${{ needs.detect.outputs.app_dir }}
         run: |
-          cd app
           flutter pub get
           flutter build ios --release --no-codesign
 
       - name: Zip iOS payload
         run: |
-          cd app/build/ios/iphoneos
+          cd ${{ needs.detect.outputs.app_dir }}/build/ios/iphoneos
           zip -r pos_ios.zip Runner.app
 
       - name: Upload iOS
         uses: actions/upload-artifact@v4
         with:
           name: ios-build
-          path: app/build/ios/iphoneos/pos_ios.zip
+          path: ${{ needs.detect.outputs.app_dir }}/build/ios/iphoneos/pos_ios.zip
 
-  # ---------- 6) بناء الخادم (Executable) ----------
+  # ---------- 6) Server (يتخطى تلقائياً إذا غير موجود) ----------
   server:
     name: Build Server Executable
-    needs: analyze
+    needs: [detect, analyze]
+    if: needs.detect.outputs.has_server == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -195,11 +217,11 @@ jobs:
           name: server-exe
           path: server/pos_server
 
-  # ---------- 7) إصدار Release بكل الملفات ----------
+  # ---------- 7) Release ----------
   release:
     name: Create GitHub Release
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [android, web, windows, ios, server]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled')
+    needs: [detect, analyze, android, web, windows, ios, server]
     runs-on: ubuntu-latest
     permissions:
       contents: write
