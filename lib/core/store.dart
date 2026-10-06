@@ -5,29 +5,17 @@ import 'package:sqflite/sqflite.dart';
 /* ==========================================================
    6) دالة التخزين المحلي Offline-First (Doc + Store)
    ========================================================== */
-class Doc {
-  final String table, id;
-  final Map<String, dynamic> data;
-  final int updatedAt;
-  final bool deleted;
-  Doc({required this.table, required this.id, required this.data, required this.updatedAt, this.deleted = false});
-
-
-
-  Map<String, dynamic> toJson() => {'table': table, 'id': id, 'data': data, 'updatedAt': updatedAt, 'deleted': deleted};
-
-
-
-  factory Doc.fromJson(Map<String, dynamic> j) => Doc(
-      table: j['table'], id: j['id'],
-      data: Map<String, dynamic>.from(j['data'] is String ? jsonDecode(j['data']) : j['data']),
-      updatedAt: j['updatedAt'], deleted: j['deleted'] == true || j['deleted'] == 1);
-}
-
-
-
+/* ==========================================================
+   6) دالة التخزين المحلي Offline-First (Store) — مصححة
+   ========================================================== */
 class Store {
   static Database? _db;
+
+
+
+  static Future<void> init() async {
+    await db;
+  }
 
 
 
