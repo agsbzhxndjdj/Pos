@@ -175,9 +175,9 @@ class _ShiftsScreenState extends State<ShiftsScreen> {
     if (s.status == 'open') return const Chip(label: Text('مفتوحة'));
     final c = s.diff == 0 ? Colors.green : s.diff > 0 ? Colors.orange : Colors.red;
     final t = s.diff == 0 ? 'مطابقة' : '${s.diff > 0 ? 'زيادة' : 'عجز'} ${money(s.diff.abs())}';
-    return Chip(label: Text(t, style: TextStyle(color: c, fontWeight: FontWeight.bold, fontSize: 11)), backgroundColor: c.withOpacity(.12));
+    return Chip(label: Text(t, style: TextStyle(color: c, fontWeight: FontWeight.bold, fontSize: 11)),
+        backgroundColor: c.withValues(alpha: .12));
   }
-
 
 
   @override
