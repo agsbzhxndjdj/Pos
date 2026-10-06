@@ -140,6 +140,9 @@ class _LoginScreenState extends State<LoginScreen> {
 /* ==========================================================
    5) دالة الصدفة الرئيسية والتنقل (HomeShell)
    ========================================================== */
+/* ==========================================================
+   5) دالة الصدفة الرئيسية والتنقل (HomeShell) — مصححة
+   ========================================================== */
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
   @override
@@ -193,10 +196,10 @@ class _HomeShellState extends State<HomeShell> {
       ShiftsScreen(branchId: Session.branchId, userId: Session.userId),
       RefundsScreen(branchId: Session.branchId, userId: Session.userId),
       DeliveryAppsScreen(userId: Session.userId),
-      InternalDeliveriesScreen(),
-      CustomersScreen(),
-      SyncScreen(),
-      SettingsScreen(),
+      const InternalDeliveriesScreen(),
+      const CustomersScreen(),
+      const SyncScreen(),
+      const SettingsScreen(),
     ];
     const titles = ['نقطة البيع', 'الورديات', 'المرتجعات', 'منصات التوصيل', 'التوصيل الداخلي', 'العملاء', 'المزامنة والفروع', 'الإعدادات'];
     const icons = [Icons.point_of_sale, Icons.badge, Icons.assignment_return, Icons.delivery_dining, Icons.local_shipping, Icons.people, Icons.sync, Icons.settings];
@@ -215,7 +218,7 @@ class _HomeShellState extends State<HomeShell> {
           ListTile(
             leading: Icon(icons[i]),
             title: Text(titles[i]),
-            trailing: i == 3 && _appsBadge > 0 ? Badge(count: _appsBadge) : null,
+            trailing: i == 3 && _appsBadge > 0 ? Badge.count(count: _appsBadge) : null,
             selected: _i == i,
             onTap: () { setState(() => _i = i); Navigator.pop(context); },
           ),
