@@ -97,7 +97,7 @@ class _ShiftsScreenState extends State<ShiftsScreen> {
           if (diff != null)
             Container(margin: const EdgeInsets.only(top: 8), padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),
-                    color: (diff == 0 ? Colors.green : diff > 0 ? Colors.orange : Colors.red).withOpacity(.12)),
+                    color: (diff == 0 ? Colors.green : diff > 0 ? Colors.orange : Colors.red).withValues(alpha: .12)),
                 child: Row(children: [
                   Text(diff == 0 ? '✅ مطابق' : diff > 0 ? '📈 زيادة' : '📉 عجز', style: const TextStyle(fontWeight: FontWeight.bold)),
                   const Spacer(), Text(money(diff.abs()), style: const TextStyle(fontWeight: FontWeight.bold)),
