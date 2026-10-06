@@ -84,6 +84,9 @@ class _CustomersScreenState extends State<CustomersScreen> {
 /* ==========================================================
    28) دالة شاشة المزامنة والفروع (SyncScreen)
    ========================================================== */
+/* ==========================================================
+   28) دالة شاشة المزامنة والفروع (SyncScreen) — مصححة
+   ========================================================== */
 class SyncScreen extends StatefulWidget {
   const SyncScreen({super.key});
   @override
@@ -126,7 +129,7 @@ class _SyncScreenState extends State<SyncScreen> {
       const Text('حالة الجهاز', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
       const SizedBox(height: 8),
       Text('الفرع الحالي: ${SyncService.myBranch ?? Session.branchId}'),
-      Text('التoken: ${SyncService.token == null ? 'غير مسجل' : 'مفعّل'}'),
+      Text('التوكن: ${SyncService.token == null ? 'غير مسجل' : 'مفعّل'}'),
       const SizedBox(height: 12),
       FilledButton.icon(onPressed: _busy ? null : _syncNow, icon: const Icon(Icons.sync), label: const Text('مزامنة الآن')),
     ]))),
@@ -138,10 +141,16 @@ class _SyncScreenState extends State<SyncScreen> {
       TextField(controller: _p, obscureText: true, decoration: const InputDecoration(labelText: 'كلمة المرور')),
       const SizedBox(height: 10),
       const Text('خيار المزامنة:'),
-      RadioListTile<SyncMode>(contentPadding: EdgeInsets.zero, value: SyncMode.sameBranch, groupValue: _mode,
-          title: const Text('نفس الفرع (مزامنة كاملة تشمل المخزون)'), onChanged: (v) => setState(() => _mode = v!)),
-      RadioListTile<SyncMode>(contentPadding: EdgeInsets.zero, value: SyncMode.newBranch, groupValue: _mode,
-          title: const Text('فرع جديد (كتالوج مشترك + مخزون مستقل)'), onChanged: (v) => setState(() => _mode = v!)),
+      RadioGroup<SyncMode>(
+        groupValue: _mode,
+        onChanged: (v) => setState(() => _mode = v ?? SyncMode.sameBranch),
+        child: const Column(children: [
+          RadioListTile<SyncMode>(contentPadding: EdgeInsets.zero, value: SyncMode.sameBranch,
+              title: Text('نفس الفرع (مزامنة كاملة تشمل المخزون)')),
+          RadioListTile<SyncMode>(contentPadding: EdgeInsets.zero, value: SyncMode.newBranch,
+              title: Text('فرع جديد (كتالوج مشترك + مخزون مستقل)')),
+        ]),
+      ),
       if (_mode == SyncMode.newBranch)
         TextField(controller: _b, decoration: const InputDecoration(labelText: 'اسم الفرع الجديد')),
       const SizedBox(height: 10),
@@ -149,7 +158,6 @@ class _SyncScreenState extends State<SyncScreen> {
     ]))),
   ]);
 }
-
 
 
 /* ==========================================================
