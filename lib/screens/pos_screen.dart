@@ -338,19 +338,13 @@ class _PosScreenState extends State<PosScreen> {
                   Text('${p.price.toStringAsFixed(2)} ر.س', style: TextStyle(color: Theme.of(ctx).colorScheme.primary, fontWeight: FontWeight.bold)),
                   const Spacer(),
                   Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: (ok ? Colors.green : Colors.red).withOpacity(.15)),
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: (ok ? Colors.green : Colors.red).withValues(alpha: .15)),
                       child: Text(ok ? 'متوفر' : 'نفد', style: TextStyle(fontSize: 10, color: ok ? Colors.green.shade700 : Colors.red))),
                 ]),
               ])))));
         })),
     ]);
   }
-
-
-
-  Widget _chip(String t, bool active, VoidCallback onTap) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 3),
-    child: FilterChip(label: Text(t), selected: active, onSelected: (_) => onTap()));
 
 
 
@@ -379,7 +373,7 @@ class _PosScreenState extends State<PosScreen> {
                 IconButton(icon: const Icon(Icons.delete_outline, color: Colors.red), onPressed: () => _setQty(l.productId, 0)),
               ]))),
           ])),
-      Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: cs.surfaceContainerHighest.withOpacity(.4)), child: Column(children: [
+      Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: cs.surfaceContainerHighest.withValues(alpha: .4)), child: Column(children: [
         Row(children: [const Text('قبل الضريبة'), const Spacer(), Text(t.net.toStringAsFixed(2))]),
         Row(children: [
           Text('الضريبة (${_manualTax != null ? 'يدوي' : 'نظامي ${_rate}%'})'),
@@ -405,4 +399,3 @@ class _PosScreenState extends State<PosScreen> {
       ])),
     ]);
   }
-}
