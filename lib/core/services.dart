@@ -484,6 +484,10 @@ class DrawerService {
    20) دالة المزامنة والفروع (SyncService)
    ========================================================== */
 class SyncService {
+/* ==========================================================
+   20) دالة المزامنة والفروع (SyncService) — مصححة
+   ========================================================== */
+class SyncService {
   static const baseUrl = 'http://YOUR_SERVER:8080';
   static final dio = Dio(BaseOptions(baseUrl: baseUrl, connectTimeout: const Duration(seconds: 8)));
   static String? token, myBranch;
@@ -496,17 +500,19 @@ class SyncService {
 
 
   static Future<void> registerDevice({required String username, required String password,
-      required SyncMode m, String? newBranchName}) async {
+      required SyncMode mode, String? newBranchName}) async {
     final r = await dio.post('/register', data: {
       'username': username, 'password': password,
-      'newBranch': m == SyncMode.newBranch, 'branchName': newBranchName,
+      'newBranch': mode == SyncMode.newBranch, 'branchName': newBranchName,
     });
-    token = r.data['token']; myBranch = r.data['branchId']; mode = m;
+    token = r.data['token'];
+    myBranch = r.data['branchId'];
+    SyncService.mode = mode;
     Session.branchId = myBranch!;
     await Session.save();
     await Store.metaSet('token', token!);
     await Store.metaSet('branch', myBranch!);
-    await Store.metaSet('mode', m.name);
+    await Store.metaSet('mode', mode.name);
   }
 
 
@@ -548,7 +554,6 @@ class SyncService {
     } catch (_) {}
   }
 }
-
 
 
 /* ==========================================================
