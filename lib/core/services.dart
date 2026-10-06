@@ -35,13 +35,9 @@ class Session {
 /* ==========================================================
    10) دالة الضريبة: نظامي أو تعديل يدوي (TaxService)
    ========================================================== */
-class Totals {
-  final double gross, discount, net, tax, total;
-  Totals({required this.gross, required this.discount, required this.net, required this.tax, required this.total});
-}
-
-
-
+/* ==========================================================
+   10) دالة الضريبة: نظامي أو تعديل يدوي (TaxService) — مصححة
+   ========================================================== */
 class TaxService {
   static Totals compute({required double gross, double discount = 0, double? manualTax, double rate = 15}) {
     final after = (gross - discount).clamp(0.0, double.infinity).toDouble();
@@ -56,8 +52,8 @@ class TaxService {
   static void splitTaxToLines(List<InvoiceItem> items, double totalTax, double totalGross) {
     for (final it in items) {
       final share = totalGross == 0 ? 0.0 : it.gross / totalGross;
-      it.tax = +(totalTax * share).toStringAsFixed(2);
-      it.net = +(it.gross - it.tax).toStringAsFixed(2);
+      it.tax = double.parse((totalTax * share).toStringAsFixed(2));
+      it.net = double.parse((it.gross - it.tax).toStringAsFixed(2));
     }
   }
 }
